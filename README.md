@@ -1,2 +1,0 @@
-# hd-upload
-yy
