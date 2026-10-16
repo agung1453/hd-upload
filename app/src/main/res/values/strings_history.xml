@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ===================== History screen ===================== -->
+    <string name="history_empty_title">No history yet</string>
+    <string name="history_empty_body">Pages you visit will appear here. Private tabs are never saved.</string>
+    <string name="history_search_empty_title">No results</string>
+    <string name="history_search_empty_body">No history entries match “%1$s”.</string>
+    <string name="history_search_hint">Search history</string>
+    <string name="history_clear_title">Clear browsing history?</string>
+    <string name="history_clear_message">This removes every saved history entry from this device. Bookmarks are not affected.</string>
+    <string name="history_deleted">Entry removed from history</string>
+    <string name="history_cleared">History cleared</string>
+    <string name="history_meta_visits">%1$d visits</string>
+    <string name="history_meta_one_visit">1 visit</string>
+    <string name="history_meta_recent">%1$s · %2$s</string>
+    <string name="history_section_frequent">Frequently visited</string>
+    <string name="history_section_recent">Recent</string>
+    <string name="cd_history_search">Search history</string>
+    <string name="cd_history_close_search">Close search</string>
+    <string name="cd_history_clear">Clear all history</string>
+    <string name="cd_history_delete">Delete history entry</string>
+    <string name="cd_history_open">Open page</string>
+
+    <!-- ===================== Bookmarks screen ===================== -->
+    <string name="bookmarks_empty_title">No bookmarks</string>
+    <string name="bookmarks_empty_body">Tap the add button to save a page you want to come back to.</string>
+    <string name="bookmarks_search_empty_title">No results</string>
+    <string name="bookmarks_search_empty_body">No bookmarks match “%1$s”.</string>
+    <string name="bookmarks_search_hint">Search bookmarks</string>
+    <string name="bookmarks_section_recent">Recently added</string>
+    <string name="bookmarks_section_earlier">Earlier</string>
+    <string name="bookmarks_add_title">New bookmark</string>
+    <string name="bookmarks_add_field_title">Title</string>
+    <string name="bookmarks_add_field_url">Address</string>
+    <string name="bookmarks_add_error_url">Enter a valid address</string>
+    <string name="bookmarks_deleted">Bookmark removed</string>
+    <string name="bookmark_meta">added %1$s</string>
+    <string name="cd_bookmarks_search">Search bookmarks</string>
+    <string name="cd_bookmarks_close_search">Close search</string>
+    <string name="cd_bookmarks_add">Add bookmark</string>
+    <string name="cd_bookmark_delete">Remove bookmark</string>
+    <string name="cd_bookmark_open">Open bookmark</string>
+
+    <!-- ===================== Shared list-screen bits ===================== -->
+    <!-- "Undo" already exists as @string/action_undo in strings.xml; not repeated here. -->
+    <string name="action_confirm">Confirm</string>
+
+    <!-- ===================== Relative time ===================== -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_minutes_ago">%1$d min ago</string>
+    <string name="time_hours_ago">%1$d h ago</string>
+    <string name="time_yesterday">Yesterday</string>
+    <plurals name="time_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+
+</resources>

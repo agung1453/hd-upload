@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Settings screen definition.
+
+    The PreferenceManager used by SettingsFragment is pointed at
+    com.nimbus.browser.core.Prefs.FILE, so every key below is read/written by
+    the rest of the app through the Prefs wrapper. Keys are @string resources
+    (see res/values/strings_settings.xml) whose values are byte-for-byte equal
+    to the Prefs.KEY_* constants.
+
+    NOTE on pref_text_zoom / pref_web_cache:
+        Prefs stores both as an Int (index into Prefs.TEXT_ZOOM_STEPS and
+        WebCacheMode respectively), while a ListPreference can only persist a
+        String. Both widgets are therefore declared android:persistent="false"
+        so they never touch the SharedPreferences file themselves, and
+        SettingsFragment parses the selected entry value back into an Int and
+        writes it through Prefs.edit { putInt(...) }. Because they do not
+        persist, they also never *read* the Int, which would otherwise throw a
+        ClassCastException inside Preference.getPersistedString().
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- ==================== Appearance ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_appearance"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:defaultValue="system"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_palette"
+            android:key="@string/PREF_KEY_THEME"
+            android:summary="@string/pref_theme_summary"
+            android:title="@string/pref_theme_title"
+            app:iconSpaceReserved="false" />
+
+        <!-- Value strings are indices into text_zoom_entries; see the header note. -->
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/text_zoom_entries"
+            android:entryValues="@array/text_zoom_values"
+            android:key="@string/PREF_KEY_TEXT_ZOOM"
+            android:persistent="false"
+            android:summary="@string/pref_text_zoom_summary"
+            android:title="@string/pref_text_zoom_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/PREF_KEY_FULLSCREEN"
+            android:summary="@string/pref_fullscreen_summary"
+            android:title="@string/pref_fullscreen_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Search ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_search"
+        app:iconSpaceReserved="false">
+
+        <ListPreference
+            android:defaultValue="duckduckgo"
+            android:entries="@array/search_engine_entries"
+            android:entryValues="@array/search_engine_values"
+            android:icon="@drawable/ic_search"
+            android:key="@string/PREF_KEY_SEARCH_ENGINE"
+            android:summary="@string/pref_search_engine_summary"
+            android:title="@string/pref_search_engine_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/PREF_KEY_START_PAGE_SEARCH"
+            android:summary="@string/pref_start_page_search_summary"
+            android:title="@string/pref_start_page_search_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Tabs ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_tabs"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@drawable/ic_grid"
+            android:key="@string/PREF_KEY_DEFAULT_PRIVATE"
+            android:summary="@string/pref_default_private_summary"
+            android:title="@string/pref_default_private_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/PREF_KEY_OPEN_IN_BACKGROUND"
+            android:summary="@string/pref_open_in_background_summary"
+            android:title="@string/pref_open_in_background_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/PREF_KEY_CLOSE_TABS_ON_EXIT"
+            android:summary="@string/pref_close_tabs_on_exit_summary"
+            android:title="@string/pref_close_tabs_on_exit_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Start page ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_start_page"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:icon="@drawable/ic_globe"
+            android:key="@string/PREF_KEY_SHOW_SHORTCUTS"
+            android:summary="@string/pref_show_shortcuts_summary"
+            android:title="@string/pref_show_shortcuts_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/PREF_KEY_SHOW_FREQUENT"
+            android:summary="@string/pref_show_frequent_summary"
+            android:title="@string/pref_show_frequent_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="@string/PREF_KEY_SHOW_RECENT"
+            android:summary="@string/pref_show_recent_summary"
+            android:title="@string/pref_show_recent_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Privacy & performance ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_privacy"
+        app:iconSpaceReserved="false">
+
+        <!-- Value strings are indices into web_cache_entries; see the header note. -->
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/web_cache_entries"
+            android:entryValues="@array/web_cache_values"
+            android:icon="@drawable/ic_shield"
+            android:key="@string/PREF_KEY_WEB_CACHE"
+            android:persistent="false"
+            android:summary="@string/pref_web_cache_summary"
+            android:title="@string/pref_web_cache_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/PREF_KEY_BLOCK_THIRD_PARTY"
+            android:summary="@string/pref_block_third_party_summary"
+            android:title="@string/pref_block_third_party_title"
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/PREF_KEY_DESKTOP_SITE"
+            android:summary="@string/pref_desktop_site_summary"
+            android:title="@string/pref_desktop_site_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== Data ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_data"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:icon="@drawable/ic_trash"
+            android:key="@string/PREF_KEY_CLEAR_DATA"
+            android:summary="@string/pref_clear_data_summary_hint"
+            android:title="@string/pref_clear_data_title"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:icon="@drawable/ic_download"
+            android:key="@string/PREF_KEY_OPEN_DOWNLOADS"
+            android:summary="@string/pref_open_downloads_summary"
+            android:title="@string/action_downloads"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            android:icon="@drawable/ic_grid"
+            android:key="@string/PREF_KEY_RESET_SHORTCUTS"
+            android:summary="@string/pref_reset_shortcuts_summary"
+            android:title="@string/pref_reset_shortcuts_title"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <!-- ==================== About ==================== -->
+    <PreferenceCategory
+        android:title="@string/settings_category_about"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:icon="@drawable/ic_info"
+            android:key="@string/PREF_KEY_ABOUT"
+            android:summary="@string/pref_about_summary"
+            android:title="@string/action_about"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sheetRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_sheet_top"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/space_s">
+
+    <View
+        android:id="@+id/dragHandle"
+        android:layout_width="34dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/space_s"
+        android:background="@drawable/bg_handle" />
+
+    <LinearLayout
+        android:id="@+id/sheetHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_l"
+        android:paddingTop="@dimen/space_l"
+        android:paddingEnd="@dimen/space_l"
+        android:paddingBottom="@dimen/space_s">
+
+        <TextView
+            android:id="@+id/sheetTitle"
+            style="@style/TextAppearance.Nimbus.ScreenTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sheetContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

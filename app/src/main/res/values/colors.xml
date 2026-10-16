@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ================= Brand accent ================= -->
+    <color name="accent">#0A7CFF</color>
+    <color name="accent_pressed">#0064D2</color>
+    <color name="accent_soft">#1A0A7CFF</color>
+    <color name="on_accent">#FFFFFF</color>
+
+    <!-- ================= Surfaces (light) ================= -->
+    <color name="bg_root">#F1F2F5</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="bg_elevated">#FFFFFF</color>
+    <color name="bg_toolbar">#F7F8FA</color>
+    <color name="bg_sheet">#FFFFFF</color>
+    <color name="bg_pressed">#1F000000</color>
+
+    <!-- ================= Address pill ================= -->
+    <color name="pill_bg">#E7E9ED</color>
+    <color name="pill_bg_focused">#FFFFFF</color>
+    <color name="pill_stroke">#00000000</color>
+    <color name="pill_stroke_focused">#0A7CFF</color>
+    <color name="pill_icon">#6B7280</color>
+
+    <!-- ================= Text ================= -->
+    <color name="text_primary">#11151C</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_tertiary">#9AA1AC</color>
+    <color name="text_on_accent">#FFFFFF</color>
+
+    <!-- ================= Lines & dividers ================= -->
+    <color name="separator">#E1E4E9</color>
+    <color name="separator_strong">#CDD2DA</color>
+    <color name="scrim">#66000000</color>
+
+    <!-- ================= Tabs ================= -->
+    <color name="tab_card_bg">#FFFFFF</color>
+    <color name="tab_card_stroke">#DFE3E9</color>
+    <color name="tab_active_stroke">#0A7CFF</color>
+    <color name="tab_badge">#FF3B30</color>
+
+    <!-- ================= Private / Incognito ================= -->
+    <color name="private_accent">#6D4AFF</color>
+    <color name="private_soft">#1F6D4AFF</color>
+    <color name="private_surface">#1A1230</color>
+
+    <!-- ================= Semantic ================= -->
+    <color name="success">#28A745</color>
+    <color name="warning">#FF9F0A</color>
+    <color name="danger">#FF3B30</color>
+
+    <!-- ================= Shortcut avatar palette ================= -->
+    <color name="avatar_1">#0A7CFF</color>
+    <color name="avatar_2">#6D4AFF</color>
+    <color name="avatar_3">#00A6A6</color>
+    <color name="avatar_4">#E8590C</color>
+    <color name="avatar_5">#C2255C</color>
+    <color name="avatar_6">#2F9E44</color>
+    <color name="avatar_7">#F08C00</color>
+    <color name="avatar_8">#5F3DC4</color>
+
+    <!-- ================= Launcher ================= -->
+    <color name="ic_launcher_background">#0A7CFF</color>
+
+</resources>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Search engines. ORDER MUST MATCH com.nimbus.browser.core.SearchEngine -->
+    <string-array name="search_engine_entries">
+        <item>Google</item>
+        <item>DuckDuckGo</item>
+        <item>Bing</item>
+        <item>Brave</item>
+        <item>Startpage</item>
+        <item>Ecosia</item>
+        <item>Mozilla Firefox</item>
+    </string-array>
+
+    <string-array name="search_engine_values">
+        <item>google</item>
+        <item>duckduckgo</item>
+        <item>bing</item>
+        <item>brave</item>
+        <item>startpage</item>
+        <item>ecosia</item>
+        <item>mozilla</item>
+    </string-array>
+
+    <!-- Theme. ORDER MUST MATCH com.nimbus.browser.core.ThemeMode -->
+    <string-array name="theme_entries">
+        <item>Follow system</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="theme_values">
+        <item>system</item>
+        <item>light</item>
+        <item>dark</item>
+    </string-array>
+
+    <!-- Web cache. ORDER MUST MATCH com.nimbus.browser.core.WebCacheMode -->
+    <string-array name="web_cache_entries">
+        <item>Automatic</item>
+        <item>Reduced</item>
+        <item>Never</item>
+    </string-array>
+
+    <!-- Text zoom steps, index 2 is 100% -->
+    <string-array name="text_zoom_entries">
+        <item>85%</item>
+        <item>92%</item>
+        <item>100% (Default)</item>
+        <item>108%</item>
+        <item>115%</item>
+    </string-array>
+
+</resources>

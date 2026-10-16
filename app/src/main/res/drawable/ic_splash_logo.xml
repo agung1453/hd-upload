@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nimbus browser - original icon set. Colours resolve from
+     res/values/colors.xml and res/values-night/colors.xml. -->
+<!-- Splash screen logo: same 'orbit globe' mark, accent coloured. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:pathData="M29.33,48A18.67,18.67 0 1 1 66.67,48A18.67,18.67 0 1 1 29.33,48Z"
+        android:fillColor="@color/accent"
+        />
+    <path
+        android:pathData="M20.44,48A27.56,9.33 0 1 1 75.56,48A27.56,9.33 0 1 1 20.44,48ZM25.78,48A22.22,4.44 0 1 0 70.22,48A22.22,4.44 0 1 0 25.78,48Z"
+        android:fillColor="@color/accent"
+        android:fillType="evenOdd"
+        />
+</vector>

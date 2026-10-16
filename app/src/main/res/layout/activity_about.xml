@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:fillViewport="true"
+    tools:context=".ui.about.AboutActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            android:background="@color/bg_surface"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                style="@style/Widget.Nimbus.ToolbarIconButton"
+                android:contentDescription="@string/action_back"
+                android:src="@drawable/ic_back"
+                android:tint="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/txtTitle"
+                style="@style/TextAppearance.Nimbus.ScreenTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/space_s"
+                android:paddingEnd="@dimen/space_l"
+                android:text="@string/action_about"
+                tools:text="About" />
+
+        </LinearLayout>
+
+        <!-- ============ App identity ============ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bg_surface"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_l"
+            android:paddingTop="@dimen/space_xl"
+            android:paddingEnd="@dimen/space_l"
+            android:paddingBottom="@dimen/space_xl">
+
+            <TextView
+                android:id="@+id/txtAppName"
+                style="@style/TextAppearance.Nimbus.ScreenTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                tools:text="Nimbus" />
+
+            <TextView
+                android:id="@+id/txtTagline"
+                style="@style/TextAppearance.Nimbus.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:text="@string/app_tagline"
+                tools:text="A fast, private, modern browser" />
+
+            <TextView
+                android:id="@+id/txtVersion"
+                style="@style/TextAppearance.Nimbus.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                tools:text="Version 1.0.0" />
+
+            <TextView
+                android:id="@+id/txtDescription"
+                style="@style/TextAppearance.Nimbus.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_m"
+                android:lineSpacingMultiplier="1.15"
+                android:text="@string/about_description"
+                tools:text="Nimbus is a lightweight, ad-free browsing experience." />
+
+        </LinearLayout>
+
+        <!-- ============ Engine ============ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:background="@color/bg_surface"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_l"
+            android:paddingTop="@dimen/space_l"
+            android:paddingEnd="@dimen/space_l"
+            android:paddingBottom="@dimen/space_l">
+
+            <TextView
+                android:id="@+id/txtEngineTitle"
+                style="@style/TextAppearance.Nimbus.SectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_engine_title"
+                tools:text="Engine" />
+
+            <TextView
+                android:id="@+id/txtEngineValue"
+                style="@style/TextAppearance.Nimbus.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:text="@string/about_engine_value"
+                tools:text="Android System WebView" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/divider_height"
+                android:layout_marginTop="@dimen/space_l"
+                android:layout_marginBottom="@dimen/space_l"
+                android:background="@color/separator" />
+
+            <TextView
+                android:id="@+id/txtWebViewTitle"
+                style="@style/TextAppearance.Nimbus.SectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_webview_title"
+                tools:text="WebView version" />
+
+            <TextView
+                android:id="@+id/txtWebViewValue"
+                style="@style/TextAppearance.Nimbus.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                tools:text="Version 126.0.6478.71" />
+
+        </LinearLayout>
+
+        <!-- ============ Privacy ============ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_m"
+            android:background="@color/bg_surface"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_l"
+            android:paddingTop="@dimen/space_l"
+            android:paddingEnd="@dimen/space_l"
+            android:paddingBottom="@dimen/space_l">
+
+            <TextView
+                android:id="@+id/txtPrivacyTitle"
+                style="@style/TextAppearance.Nimbus.SectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_privacy_title"
+                tools:text="Privacy" />
+
+            <TextView
+                android:id="@+id/txtPrivacyBody"
+                style="@style/TextAppearance.Nimbus.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:lineSpacingMultiplier="1.15"
+                android:text="@string/about_privacy_body"
+                tools:text="No analytics, no ads." />
+
+        </LinearLayout>
+
+        <!-- ============ Footer ============ -->
+        <TextView
+            android:id="@+id/txtFooter"
+            style="@style/TextAppearance.Nimbus.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_l"
+            android:lineSpacingMultiplier="1.15"
+            android:paddingStart="@dimen/space_l"
+            android:paddingTop="@dimen/space_m"
+            android:paddingEnd="@dimen/space_l"
+            android:paddingBottom="@dimen/space_xl"
+            android:text="@string/about_footer"
+            tools:text="Nimbus is an independent project." />
+
+    </LinearLayout>
+
+</ScrollView>

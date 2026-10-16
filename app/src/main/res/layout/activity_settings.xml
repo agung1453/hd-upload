@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root"
+    android:orientation="vertical"
+    tools:context=".ui.settings.SettingsActivity">
+
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/bg_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            style="@style/Widget.Nimbus.ToolbarIconButton"
+            android:contentDescription="@string/action_back"
+            android:src="@drawable/ic_back"
+            android:tint="@color/text_primary" />
+
+        <TextView
+            android:id="@+id/txtTitle"
+            style="@style/TextAppearance.Nimbus.ScreenTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/space_s"
+            android:paddingEnd="@dimen/space_l"
+            android:text="@string/action_settings"
+            tools:text="Settings" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/settingsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/bg_root" />
+
+</LinearLayout>

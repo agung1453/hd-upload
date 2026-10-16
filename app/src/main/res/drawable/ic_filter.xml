@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nimbus browser - original icon set. Colours resolve from
+     res/values/colors.xml and res/values-night/colors.xml. -->
+<!-- Filter results (funnel). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M3.8,5.6H20.2L13.9,13.1V20.4L10.1,18.4V13.1Z"
+        android:strokeColor="@color/text_secondary"
+        android:strokeWidth="1.9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        />
+</vector>

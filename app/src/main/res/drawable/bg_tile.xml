@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nimbus browser - original icon set. Colours resolve from
+     res/values/colors.xml and res/values-night/colors.xml. -->
+<!-- Generic elevated tile background. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/bg_elevated" />
+    <corners android:radius="@dimen/corner_tile" />
+</shape>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/startRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_root">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/startContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_l"
+            android:paddingTop="@dimen/space_l"
+            android:paddingEnd="@dimen/space_l"
+            android:paddingBottom="@dimen/space_xxl">
+
+            <!-- Greeting -->
+            <TextView
+                android:id="@+id/txtGreeting"
+                style="@style/TextAppearance.Nimbus.ScreenTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_m" />
+
+            <!-- Prominent search column -->
+            <LinearLayout
+                android:id="@+id/searchRow"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/start_search_height"
+                android:background="@drawable/bg_search_field"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/space_l"
+                android:paddingEnd="@dimen/space_l">
+
+                <ImageView
+                    android:id="@+id/icSearchIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/start_search_hint"
+                    android:src="@drawable/ic_search"
+                    android:tint="@color/text_tertiary" />
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/space_s"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="@string/start_search_hint"
+                    android:imeOptions="actionSearch|flagNoExtractUi"
+                    android:importantForAutofill="no"
+                    android:inputType="text|textNoSuggestions"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textCursorDrawable="@null"
+                    android:textSize="@dimen/text_body" />
+            </LinearLayout>
+
+            <!-- Shortcuts -->
+            <TextView
+                android:id="@+id/headerShortcuts"
+                style="@style/TextAppearance.Nimbus.SectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/section_gap"
+                android:text="@string/section_shortcuts" />
+
+            <LinearLayout
+                android:id="@+id/gridShortcuts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="vertical" />
+
+            <!-- Frequently visited -->
+            <TextView
+                android:id="@+id/headerFrequent"
+                style="@style/TextAppearance.Nimbus.SectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/section_gap"
+                android:text="@string/section_frequent" />
+
+            <LinearLayout
+                android:id="@+id/listFrequent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="vertical" />
+
+            <!-- Recent -->
+            <TextView
+                android:id="@+id/headerRecent"
+                style="@style/TextAppearance.Nimbus.SectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/section_gap"
+                android:text="@string/section_recent" />
+
+            <LinearLayout
+                android:id="@+id/listRecent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_s"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/txtEmpty"
+                style="@style/TextAppearance.Nimbus.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_l"
+                android:gravity="center"
+                android:text="@string/start_empty_history"
+                android:visibility="gone" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/space_m"
+    android:paddingBottom="@dimen/space_m">
+
+    <FrameLayout
+        android:id="@+id/iconHolder"
+        android:layout_width="@dimen/shortcut_icon"
+        android:layout_height="@dimen/shortcut_icon"
+        android:background="@drawable/bg_shortcut_icon"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/txtGlyph"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@color/on_accent"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/txtLabel"
+        style="@style/TextAppearance.Nimbus.Secondary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp" />
+
+</LinearLayout>

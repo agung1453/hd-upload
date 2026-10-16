@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ================================================================== -->
+    <!-- Preference keys.                                                   -->
+    <!--                                                                    -->
+    <!-- Every value MUST stay identical to the matching Prefs.KEY_*        -->
+    <!-- constant in com.nimbus.browser.core.Prefs, because both the XML   -->
+    <!-- PreferenceManager and the app code read/write the very same        -->
+    <!-- SharedPreferences file (Prefs.FILE).                               -->
+    <!--                                                                    -->
+    <!-- Keys declared as @string resources (instead of literal text) are   -->
+    <!-- required for ListPreference/Preference keys so that the key and   -->
+    <!-- the human readable label can never drift apart.                    -->
+    <!-- ================================================================== -->
+
+    <string name="PREF_KEY_THEME" translatable="false">pref_theme</string>
+    <string name="PREF_KEY_SEARCH_ENGINE" translatable="false">pref_search_engine</string>
+    <string name="PREF_KEY_DESKTOP_SITE" translatable="false">pref_desktop_site</string>
+    <string name="PREF_KEY_FULLSCREEN" translatable="false">pref_fullscreen</string>
+    <string name="PREF_KEY_START_PAGE_SEARCH" translatable="false">pref_start_page_search</string>
+    <string name="PREF_KEY_SHOW_SHORTCUTS" translatable="false">pref_show_shortcuts</string>
+    <string name="PREF_KEY_SHOW_FREQUENT" translatable="false">pref_show_frequent</string>
+    <string name="PREF_KEY_SHOW_RECENT" translatable="false">pref_show_recent</string>
+    <string name="PREF_KEY_DEFAULT_PRIVATE" translatable="false">pref_default_private</string>
+    <string name="PREF_KEY_OPEN_IN_BACKGROUND" translatable="false">pref_open_in_background</string>
+    <string name="PREF_KEY_TEXT_ZOOM" translatable="false">pref_text_zoom</string>
+    <string name="PREF_KEY_CLOSE_TABS_ON_EXIT" translatable="false">pref_close_tabs_on_exit</string>
+    <string name="PREF_KEY_WEB_CACHE" translatable="false">pref_web_cache</string>
+    <string name="PREF_KEY_BLOCK_THIRD_PARTY" translatable="false">pref_block_third_party</string>
+    <string name="PREF_KEY_SEEDED_SHORTCUTS" translatable="false">pref_seeded_shortcuts</string>
+
+    <!-- Action preferences (no Prefs.KEY_* counterpart) -->
+    <string name="PREF_KEY_CLEAR_DATA" translatable="false">pref_clear_browsing_data</string>
+    <string name="PREF_KEY_OPEN_DOWNLOADS" translatable="false">pref_open_downloads</string>
+    <string name="PREF_KEY_RESET_SHORTCUTS" translatable="false">pref_reset_shortcuts</string>
+    <string name="PREF_KEY_ABOUT" translatable="false">pref_about</string>
+
+    <!-- ================================================================== -->
+    <!-- Entry-value arrays for the two index based ListPreferences.         -->
+    <!--                                                                    -->
+    <!-- res/values/arrays.xml is owned by another module and only ships    -->
+    <!-- the *labels* (theme_entries, web_cache_entries, text_zoom_...).    -->
+    <!-- Prefs however stores text zoom and web cache mode as Ints, so the  -->
+    <!-- widgets need "0,1,2..." entry values that can be parsed back into   -->
+    <!-- an index.                                                          -->
+    <!-- ================================================================== -->
+    <string-array name="text_zoom_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+    <string-array name="web_cache_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <!-- ================================================================== -->
+    <!-- Category titles                                                    -->
+    <!-- ================================================================== -->
+    <string name="settings_category_appearance">Appearance</string>
+    <string name="settings_category_search">Search</string>
+    <string name="settings_category_tabs">Tabs</string>
+    <string name="settings_category_start_page">Start page</string>
+    <string name="settings_category_privacy">Privacy &amp; performance</string>
+    <string name="settings_category_data">Data</string>
+    <string name="settings_category_about">About</string>
+
+    <!-- ================================================================== -->
+    <!-- Appearance                                                         -->
+    <!-- ================================================================== -->
+    <string name="pref_theme_title">Theme</string>
+    <string name="pref_theme_summary">%s</string>
+    <string name="pref_text_zoom_title">Text size</string>
+    <string name="pref_text_zoom_summary">%s</string>
+    <string name="pref_fullscreen_title">Fullscreen video</string>
+    <string name="pref_fullscreen_summary">Hide the system bars while a video is playing</string>
+
+    <!-- ================================================================== -->
+    <!-- Search                                                             -->
+    <!-- ================================================================== -->
+    <string name="pref_search_engine_title">Search engine</string>
+    <string name="pref_search_engine_summary">%s</string>
+    <string name="pref_start_page_search_title">Search bar on the start page</string>
+    <string name="pref_start_page_search_summary">Show the search box above your shortcuts</string>
+
+    <!-- ================================================================== -->
+    <!-- Tabs                                                               -->
+    <!-- ================================================================== -->
+    <string name="pref_default_private_title">Open tabs privately</string>
+    <string name="pref_default_private_summary">New tabs start in private browsing mode</string>
+    <string name="pref_open_in_background_title">Open links in the background</string>
+    <string name="pref_open_in_background_summary">Stay on the current page when a link opens a new tab</string>
+    <string name="pref_close_tabs_on_exit_title">Close tabs when Nimbus exits</string>
+    <string name="pref_close_tabs_on_exit_summary">Discard open tabs instead of restoring them</string>
+
+    <!-- ================================================================== -->
+    <!-- Start page                                                         -->
+    <!-- ================================================================== -->
+    <string name="pref_show_shortcuts_title">Show shortcuts</string>
+    <string name="pref_show_shortcuts_summary">Display your pinned tiles on the start page</string>
+    <string name="pref_show_frequent_title">Frequently visited</string>
+    <string name="pref_show_frequent_summary">Show the sites you visit most often</string>
+    <string name="pref_show_recent_title">Recent pages</string>
+    <string name="pref_show_recent_summary">Show the pages you looked at recently</string>
+
+    <!-- ================================================================== -->
+    <!-- Privacy & performance                                              -->
+    <!-- ================================================================== -->
+    <string name="pref_web_cache_title">Cached images and files</string>
+    <string name="pref_web_cache_summary">%s</string>
+    <string name="pref_block_third_party_title">Block third-party cookies</string>
+    <string name="pref_block_third_party_summary">Stop other sites from tracking you across the web</string>
+    <string name="pref_desktop_site_title">Prefer desktop sites</string>
+    <string name="pref_desktop_site_summary">Ask websites for the full desktop version</string>
+
+    <!-- ================================================================== -->
+    <!-- Data                                                               -->
+    <!-- ================================================================== -->
+    <string name="pref_clear_data_title">Clear browsing data</string>
+    <string name="pref_clear_data_summary">Nimbus %1$s</string>
+    <string name="pref_clear_data_summary_hint">History, cookies, cache, form data and downloads</string>
+    <string name="pref_open_downloads_summary">Files you have downloaded with Nimbus</string>
+    <string name="pref_reset_shortcuts_title">Reset shortcuts</string>
+    <string name="pref_reset_shortcuts_summary">Restore the default start page shortcuts</string>
+    <string name="pref_about_summary">Version, rendering engine and privacy</string>
+
+    <!-- ================================================================== -->
+    <!-- Clear browsing data dialog                                         -->
+    <!-- ================================================================== -->
+    <string name="clear_data_message">Choose the data you want to remove from this device.</string>
+    <string name="clear_data_history">Browsing history</string>
+    <string name="clear_data_cookies">Cookies and site data</string>
+    <string name="clear_data_cache">Cached images and files</string>
+    <string name="clear_data_form_data">Form data and autofill</string>
+    <string name="clear_data_downloads">Download history</string>
+    <string name="toast_data_cleared">Browsing data cleared</string>
+    <string name="toast_data_none_selected">Nothing was selected</string>
+    <string name="toast_shortcuts_reset">Shortcuts restored</string>
+
+    <!-- ================================================================== -->
+    <!-- About screen (everything else is reused from strings.xml)           -->
+    <!-- ================================================================== -->
+    <string name="about_webview_title">WebView version</string>
+    <string name="about_webview_value">Version %1$s</string>
+    <string name="about_webview_unknown">Not available</string>
+    <string name="about_footer">Nimbus is an independent project and is not affiliated with, endorsed by, or sponsored by any other browser vendor.</string>
+
+</resources>

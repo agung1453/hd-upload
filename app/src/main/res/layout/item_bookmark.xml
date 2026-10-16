@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One bookmark row. Same skeleton as the history row but with no per-row
+    delete button: the trailing glyph is the "open" affordance and removal
+    happens through a long press, which keeps the row uncluttered.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_row_height"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_l"
+    android:paddingEnd="@dimen/space_m">
+
+    <FrameLayout
+        android:id="@+id/faviconHolder"
+        android:layout_width="@dimen/list_row_icon"
+        android:layout_height="@dimen/list_row_icon"
+        android:background="@drawable/bg_favicon_circle">
+
+        <TextView
+            android:id="@+id/txtGlyph"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="N" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtTitle"
+            style="@style/TextAppearance.Nimbus.TabTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            tools:text="Nimbus" />
+
+        <TextView
+            android:id="@+id/txtUrl"
+            style="@style/TextAppearance.Nimbus.Url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            tools:text="example.com" />
+
+        <TextView
+            android:id="@+id/txtMeta"
+            style="@style/TextAppearance.Nimbus.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_tertiary"
+            tools:text="added 3 days ago" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imgOpen"
+        android:layout_width="@dimen/space_xl"
+        android:layout_height="@dimen/space_xl"
+        android:contentDescription="@string/cd_bookmark_open"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_external"
+        app:tint="@color/text_tertiary" />
+
+</LinearLayout>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootDialog"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_l"
+    android:paddingTop="@dimen/space_s"
+    android:paddingEnd="@dimen/space_l"
+    android:paddingBottom="@dimen/space_s">
+
+    <CheckBox
+        android:id="@+id/chkHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/accent"
+        android:checked="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:text="@string/clear_data_history"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body" />
+
+    <CheckBox
+        android:id="@+id/chkCookies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/accent"
+        android:checked="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:text="@string/clear_data_cookies"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body" />
+
+    <CheckBox
+        android:id="@+id/chkCache"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/accent"
+        android:checked="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:text="@string/clear_data_cache"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body" />
+
+    <CheckBox
+        android:id="@+id/chkFormData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/accent"
+        android:checked="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:text="@string/clear_data_form_data"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body" />
+
+    <CheckBox
+        android:id="@+id/chkDownloads"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/accent"
+        android:checked="true"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:text="@string/clear_data_downloads"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_body" />
+
+</LinearLayout>

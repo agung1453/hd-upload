@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Spacing scale -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_s">8dp</dimen>
+    <dimen name="space_m">12dp</dimen>
+    <dimen name="space_l">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="space_xxl">32dp</dimen>
+
+    <!-- Toolbar -->
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="bottom_bar_height">58dp</dimen>
+    <dimen name="bottom_bar_inset_extra">6dp</dimen>
+
+    <!-- Address bar: iOS-style stadium pill -->
+    <dimen name="address_bar_height">44dp</dimen>
+    <dimen name="address_bar_radius">22dp</dimen>
+    <dimen name="address_bar_margin_h">12dp</dimen>
+    <dimen name="address_bar_padding_start">14dp</dimen>
+    <dimen name="address_bar_padding_end">6dp</dimen>
+    <dimen name="address_bar_text_size">15sp</dimen>
+    <dimen name="address_icon_size">18dp</dimen>
+    <dimen name="address_action_size">36dp</dimen>
+
+    <!-- Buttons -->
+    <dimen name="icon_button_size">44dp</dimen>
+    <dimen name="bottom_icon_size">24dp</dimen>
+    <dimen name="toolbar_icon_size">22dp</dimen>
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="corner_card">14dp</dimen>
+    <dimen name="corner_sheet">20dp</dimen>
+    <dimen name="corner_tile">12dp</dimen>
+
+    <!-- Text -->
+    <dimen name="text_title">20sp</dimen>
+    <dimen name="text_body">15sp</dimen>
+    <dimen name="text_label">13sp</dimen>
+    <dimen name="text_caption">11sp</dimen>
+
+    <!-- Start page -->
+    <dimen name="start_search_height">52dp</dimen>
+    <dimen name="start_search_radius">26dp</dimen>
+    <dimen name="shortcut_tile">76dp</dimen>
+    <dimen name="shortcut_icon">46dp</dimen>
+    <dimen name="shortcut_gap">18dp</dimen>
+    <dimen name="section_gap">22dp</dimen>
+
+    <!-- Tab overview -->
+    <dimen name="tab_grid_spacing">14dp</dimen>
+    <dimen name="tab_card_min_height">168dp</dimen>
+    <dimen name="tab_card_radius">16dp</dimen>
+
+    <!-- Lists -->
+    <dimen name="list_row_height">60dp</dimen>
+    <dimen name="list_row_icon">40dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
+
+</resources>

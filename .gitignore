@@ -1,0 +1,30 @@
+# Built artifacts
+build/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+out/
+release/
+
+# Gradle
+.gradle/
+local.properties
+
+# Signing material must NEVER be committed
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+
+# IDE
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nimbus browser - original icon set. Colours resolve from
+     res/values/colors.xml and res/values-night/colors.xml. -->
+<!-- Adaptive icon foreground: original 'orbit globe' mark. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M33,54A21,21 0 1 1 75,54A21,21 0 1 1 33,54Z"
+        android:fillColor="@color/on_accent"
+        />
+    <path
+        android:pathData="M23,54A31,10.5 0 1 1 85,54A31,10.5 0 1 1 23,54ZM29,54A25,5 0 1 0 79,54A25,5 0 1 0 29,54Z"
+        android:fillColor="@color/on_accent"
+        android:fillType="evenOdd"
+        />
+</vector>

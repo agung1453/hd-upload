@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One history row: letter avatar, title, url, relative time and a trailing
+    delete affordance. The middle column is 0dp + weight so it absorbs all
+    leftover width and ellipsises instead of pushing the delete button off
+    screen on long URLs.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_row_height"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_l"
+    android:paddingEnd="@dimen/space_s">
+
+    <FrameLayout
+        android:id="@+id/faviconHolder"
+        android:layout_width="@dimen/list_row_icon"
+        android:layout_height="@dimen/list_row_icon"
+        android:background="@drawable/bg_favicon_circle">
+
+        <TextView
+            android:id="@+id/txtGlyph"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="E" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/space_m"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtTitle"
+            style="@style/TextAppearance.Nimbus.TabTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            tools:text="Example Domain" />
+
+        <TextView
+            android:id="@+id/txtUrl"
+            style="@style/TextAppearance.Nimbus.Url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            tools:text="example.com/page" />
+
+        <TextView
+            android:id="@+id/txtMeta"
+            style="@style/TextAppearance.Nimbus.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_tertiary"
+            tools:text="2 h ago · 5 visits" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnDelete"
+        style="@style/Widget.Nimbus.ToolbarIconButton"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="@dimen/space_xs"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/cd_history_delete"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_close"
+        app:tint="@color/text_tertiary" />
+
+</LinearLayout>

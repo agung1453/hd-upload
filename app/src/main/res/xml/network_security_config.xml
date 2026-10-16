@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+        A browser has to be able to open plain http:// pages, so cleartext is
+        permitted. User-installed CAs are deliberately NOT trusted: the
+        WebViewClient rejects invalid certificates, which keeps the browser
+        from being trivially intercepted.
+    -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

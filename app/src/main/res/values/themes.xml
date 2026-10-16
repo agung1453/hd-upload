@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ===================== Application theme ===================== -->
+    <style name="Theme.Nimbus" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/on_accent</item>
+        <item name="colorPrimaryContainer">@color/accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/accent</item>
+
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/on_accent</item>
+        <item name="colorTertiary">@color/text_secondary</item>
+        <item name="colorOnTertiary">@color/on_accent</item>
+
+        <item name="android:colorBackground">@color/bg_root</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/bg_elevated</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/separator_strong</item>
+
+        <item name="colorError">@color/danger</item>
+        <item name="colorOnError">@color/on_accent</item>
+
+        <!-- Edge to edge system bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/bg_surface</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+
+        <item name="materialAlertDialogTheme">@style/Theme.Nimbus.Dialog</item>
+    </style>
+
+    <!-- ===================== Dialogs ===================== -->
+    <style name="Theme.Nimbus.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/bg_sheet</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Nimbus.Dialog</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Nimbus.Button.Text</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Nimbus.Button.Text</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Nimbus.Button.Text</item>
+    </style>
+
+    <style name="ShapeAppearance.Nimbus.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/corner_sheet</item>
+        <item name="cornerSizeTopRight">@dimen/corner_sheet</item>
+        <item name="cornerSizeBottomLeft">@dimen/corner_sheet</item>
+        <item name="cornerSizeBottomRight">@dimen/corner_sheet</item>
+    </style>
+
+    <!-- ===================== Splash ===================== -->
+    <style name="Theme.Nimbus.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/bg_root</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.Nimbus</item>
+    </style>
+
+    <!-- ===================== Settings ===================== -->
+    <style name="Theme.Nimbus.Settings" parent="Theme.Nimbus">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+    </style>
+
+    <!-- ===================== Buttons ===================== -->
+    <style name="Widget.Nimbus.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:minWidth">64dp</item>
+        <item name="android:insetTop">6dp</item>
+        <item name="android:insetBottom">6dp</item>
+    </style>
+
+    <style name="Widget.Nimbus.Button.Filled" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/on_accent</item>
+        <item name="backgroundTint">@color/accent</item>
+        <item name="cornerRadius">@dimen/corner_tile</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.Nimbus.Button.Text.Toolbar" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">36dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+    </style>
+
+    <!-- ===================== Text appearances ===================== -->
+    <style name="TextAppearance.Nimbus.ScreenTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">@dimen/text_title</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Nimbus.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Nimbus.Secondary" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.Nimbus.Caption" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/text_tertiary</item>
+    </style>
+
+    <style name="TextAppearance.Nimbus.SectionHeader" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <style name="TextAppearance.Nimbus.Url" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="TextAppearance.Nimbus.TabTitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">@dimen/text_label</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- ===================== Widgets ===================== -->
+    <style name="Widget.Nimbus.BottomBarButton" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="Widget.Nimbus.ToolbarIconButton" parent="">
+        <item name="android:layout_width">@dimen/icon_button_size</item>
+        <item name="android:layout_height">@dimen/icon_button_size</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.Nimbus.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/bg_surface</item>
+        <item name="cardCornerRadius">@dimen/corner_card</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+
+</resources>

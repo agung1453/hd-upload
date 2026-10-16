@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nimbus browser - original icon set. Colours resolve from
+     res/values/colors.xml and res/values-night/colors.xml. -->
+<!-- History (clock with counter-clockwise arrow). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M5.77,17.56A7.6,7.6 0 1,0 16.89,7.38M14.47,3.3L16.89,7.38L21.32,9.05M12,8.6V13.2L15.6,15.4"
+        android:strokeColor="@color/text_secondary"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        />
+</vector>

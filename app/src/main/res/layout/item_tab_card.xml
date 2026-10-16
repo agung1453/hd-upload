@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tabCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_tab_card"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="@dimen/tab_card_min_height">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtGlyph"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_favicon_circle"
+                android:gravity="center"
+                android:textColor="@color/on_accent"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtDomain"
+                style="@style/TextAppearance.Nimbus.Caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <ImageView
+                android:id="@+id/icPrivate"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="6dp"
+                android:contentDescription="@string/private_tab_label"
+                android:src="@drawable/ic_private"
+                android:tint="@color/private_accent"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtTitle"
+            style="@style/TextAppearance.Nimbus.TabTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/txtUrl"
+            style="@style/TextAppearance.Nimbus.Url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp" />
+
+        <!-- Lightweight stylised page preview: keeps the grid cheap to draw. -->
+        <LinearLayout
+            android:id="@+id/preview"
+            android:layout_width="match_parent"
+            android:layout_height="96dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_rounded_surface"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <View
+                android:id="@+id/barTop"
+                android:layout_width="match_parent"
+                android:layout_height="9dp"
+                android:background="@drawable/bg_section_pill" />
+
+            <View
+                android:id="@+id/barOne"
+                android:layout_width="150dp"
+                android:layout_height="9dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_section_pill" />
+
+            <View
+                android:id="@+id/barTwo"
+                android:layout_width="match_parent"
+                android:layout_height="7dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_section_pill" />
+
+            <View
+                android:id="@+id/barThree"
+                android:layout_width="120dp"
+                android:layout_height="7dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_section_pill" />
+
+            <View
+                android:id="@+id/barBlock"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tile" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnCloseTab"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="8dp"
+        android:background="@drawable/bg_badge"
+        android:contentDescription="@string/cd_close_tab"
+        android:padding="6dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close"
+        android:tint="@color/text_on_accent" />
+
+</FrameLayout>
