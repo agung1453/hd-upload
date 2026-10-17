@@ -62,10 +62,16 @@ jobs:
           python3 tools/validate_project.py
           python3 tools/check_xml_attributes.py
 
-      # Release signing material comes only from repository Secrets. Nothing is
-      # committed. On forks (where secrets are empty) this step is a no-op and
-      # the release build simply produces an unsigned APK.
-      - name: Restore release keystore from Secrets
+      # The release APK must be signed or Android refuses to install it, so a
+      # key is always available:
+      #
+      #   * repository Secrets present -> use them. The signature is STABLE, so
+      #     a new build can upgrade an already-installed copy in place.
+      #   * otherwise -> mint a throwaway key here, purely so the APK is
+      #     installable. It lives only in $RUNNER_TEMP and dies with the job,
+      #     so its password protects nothing and every build is signed with a
+      #     different key (an upgrade then requires an uninstall first).
+      - name: Prepare release signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -73,21 +79,45 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           set -euo pipefail
+          KEYSTORE_PATH="$RUNNER_TEMP/nimbus-release.jks"
+
           if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] \
              && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
-            KEYSTORE_PATH="$RUNNER_TEMP/nimbus-release.jks"
             echo "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
-            chmod 600 "$KEYSTORE_PATH"
-            {
-              echo "NIMBUS_STORE_FILE=$KEYSTORE_PATH"
-              echo "NIMBUS_STORE_PASSWORD=$KEYSTORE_PASSWORD"
-              echo "NIMBUS_KEY_ALIAS=$KEY_ALIAS"
-              echo "NIMBUS_KEY_PASSWORD=$KEY_PASSWORD"
-            } >> "$GITHUB_ENV"
-            echo "::notice title=Signing::Release signing enabled from repository secrets."
+            SIGNING_SOURCE="repository secrets (STABLE signature - upgrades in place)"
+            echo "::notice title=Signing::Using repository secrets; signature is stable."
           else
-            echo "::notice title=Signing::No keystore secrets found (normal for forks) - release APK will be unsigned."
+            # No secrets configured, or this is a fork. Mint an ephemeral key.
+            # PKCS12 cannot hold a separate key password, so both are the same.
+            KEYSTORE_PASSWORD="nimbus"
+            KEY_ALIAS="nimbus"
+            KEY_PASSWORD="nimbus"
+            keytool -genkeypair \
+              -keystore "$KEYSTORE_PATH" \
+              -storetype PKCS12 \
+              -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KEYSTORE_PASSWORD" \
+              -keypass "$KEY_PASSWORD" \
+              -dname "CN=Nimbus Browser, OU=Build, O=Nimbus, C=US" \
+              -noprompt
+            SIGNING_SOURCE="ephemeral key generated for this run (NOT stable - uninstall before upgrading)"
+            echo "::notice title=Signing::No secrets found; generated a throwaway key so the APK is installable."
           fi
+
+          chmod 600 "$KEYSTORE_PATH"
+          {
+            echo "NIMBUS_STORE_FILE=$KEYSTORE_PATH"
+            echo "NIMBUS_STORE_PASSWORD=$KEYSTORE_PASSWORD"
+            echo "NIMBUS_KEY_ALIAS=$KEY_ALIAS"
+            echo "NIMBUS_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+          {
+            echo "### Signing"
+            echo ""
+            echo "- Source: $SIGNING_SOURCE"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build APKs
         run: ./gradlew --no-daemon --stacktrace --warning-mode=summary assembleDebug assembleRelease
@@ -100,6 +130,26 @@ jobs:
           (cd dist && sha256sum *.apk > SHA256SUMS.txt)
           echo "--- artifacts ---"
           ls -la dist
+
+      # A silently unsigned APK would still upload fine and only fail on the
+      # user's phone, so prove the signature before shipping it.
+      - name: Verify release APK is signed
+        run: |
+          set -euo pipefail
+          APK="dist/app-release.apk"
+          test -f "$APK" || { echo "::error::release APK missing"; exit 1; }
+
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          APKSIGNER=$(ls -1 "$SDK_ROOT"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "$APKSIGNER" ] && [ -x "$APKSIGNER" ]; then
+            "$APKSIGNER" verify --print-certs "$APK" | head -5
+            echo "apksigner verify: OK"
+          elif unzip -l "$APK" | grep -qE 'META-INF/.+\.(RSA|DSA|EC)'; then
+            echo "v1 (JAR) signature block present: OK"
+          else
+            echo "::error::release APK carries no signature and cannot be installed"
+            exit 1
+          fi
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
