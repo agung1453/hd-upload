@@ -1,3 +1,4 @@
+
 package com.nimbus.browser.web
 
 import android.graphics.Bitmap
@@ -19,12 +20,16 @@ class NimbusWebViewClient(
     private val host: WebViewHost
 ) : WebViewClient() {
 
-    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
-        handleUrl(view, request.url)
+    override fun shouldOverrideUrlLoading(
+        view: WebView,
+        request: WebResourceRequest
+    ): Boolean = handleUrl(view, request.url)
 
     @Deprecated("Kept for API 29 devices that still call the String overload")
-    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean =
-        handleUrl(view, Uri.parse(url))
+    override fun shouldOverrideUrlLoading(
+        view: WebView,
+        url: String
+    ): Boolean = handleUrl(view, Uri.parse(url))
 
     private fun handleUrl(view: WebView, uri: Uri): Boolean {
         val scheme = uri.scheme?.lowercase() ?: return false
@@ -35,6 +40,7 @@ class NimbusWebViewClient(
                 dispatchIntent(uri)
                 true
             }
+
             Constants.SCHEME_HTTP,
             Constants.SCHEME_HTTPS,
             Constants.SCHEME_FILE,
@@ -43,6 +49,7 @@ class NimbusWebViewClient(
             Constants.SCHEME_BLOB,
             Constants.SCHEME_ABOUT,
             Constants.SCHEME_JAVASCRIPT -> false
+
             else -> {
                 // tel:, mailto:, market:, geo:, sms:, whatsapp: …
                 host.onOpenExternal(url)
@@ -52,11 +59,7 @@ class NimbusWebViewClient(
     }
 
     /**
-     * Reads one `key=value` pair out of an `intent://` fragment, e.g.
-     * `intent://host/path#Intent;scheme=https;S.browser_fallback_url=x;end`.
-     *
-     * `Uri.getStringExtra()` is not public SDK API, so the fragment is parsed
-     * by hand instead of relying on it.
+     * Reads one key=value pair from an intent:// fragment.
      */
     private fun intentExtra(uri: Uri, key: String): String? =
         uri.fragment
@@ -68,26 +71,38 @@ class NimbusWebViewClient(
     private fun dispatchIntent(uri: Uri) {
         val scheme = intentExtra(uri, "scheme")
         val fallback = intentExtra(uri, "browser_fallback_url")
+
         val target = when {
             !scheme.isNullOrEmpty() -> {
                 val host = uri.host.orEmpty()
                 val path = uri.path.orEmpty()
                 "$scheme://$host$path"
             }
+
             !fallback.isNullOrEmpty() -> fallback
             else -> null
         }
-        if (target != null) host.onOpenExternal(target)
+
+        if (target != null) {
+            host.onOpenExternal(target)
+        }
     }
 
-    // ----------------------------------------------------------------- //
+    // -----------------------------------------------------------------
+    // Page lifecycle
+    // -----------------------------------------------------------------
 
-    override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+    override fun onPageStarted(
+        view: WebView,
+        url: String,
+        favicon: Bitmap?
+    ) {
         tab.isStartPage = false
         tab.url = url
         tab.isLoading = true
         tab.revision++
         tab.touch()
+
         host.onPageStarted(tab, url, favicon)
     }
 
@@ -97,29 +112,41 @@ class NimbusWebViewClient(
         tab.isLoading = false
         tab.canGoBack = view.canGoBack()
         tab.canGoForward = view.canGoForward()
+
         if (tab.title.isEmpty()) {
             tab.title = view.title.orEmpty()
         }
+
         tab.touch()
 
         if (!tab.isPrivate) {
             val title = tab.title.ifEmpty { UrlUtils.hostOf(url) }
             HistoryRepository.recordVisit(url, title)
         }
+
         host.onPageFinished(tab, url)
     }
 
+    // FIX: WebViewClient uses exactly these three parameters.
     override fun doUpdateVisitedHistory(
         view: WebView,
         url: String,
-        isReload: Boolean,
-        isAddingToBackForwardList: Boolean
+        isReload: Boolean
     ) {
         tab.canGoBack = view.canGoBack()
         tab.canGoForward = view.canGoForward()
         tab.url = view.url ?: tab.url
-        host.onHistoryChanged(tab, tab.canGoBack, tab.canGoForward)
+
+        host.onHistoryChanged(
+            tab,
+            tab.canGoBack,
+            tab.canGoForward
+        )
     }
+
+    // -----------------------------------------------------------------
+    // Errors
+    // -----------------------------------------------------------------
 
     override fun onReceivedError(
         view: WebView,
@@ -127,8 +154,15 @@ class NimbusWebViewClient(
         error: WebResourceError
     ) {
         if (!request.isForMainFrame) return
+
         tab.isLoading = false
-        ErrorPage.show(view, request.url?.toString().orEmpty(), describe(error.errorCode))
+
+        ErrorPage.show(
+            view,
+            request.url?.toString().orEmpty(),
+            describe(error.errorCode)
+        )
+
         host.onProgressChanged(tab, 100)
     }
 
@@ -137,14 +171,18 @@ class NimbusWebViewClient(
         request: WebResourceRequest,
         errorResponse: WebResourceResponse
     ) {
-        // Sub-resource failures are ignored on purpose; the page handles them.
+        // Sub-resource failures are ignored on purpose.
     }
 
-    override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
-        // We never bypass certificate errors: doing so would make the browser
-        // useless as a privacy tool.
+    override fun onReceivedSslError(
+        view: WebView,
+        handler: SslErrorHandler,
+        error: SslError
+    ) {
+        // Never bypass certificate errors.
         handler.cancel()
         tab.isLoading = false
+
         ErrorPage.show(view, tab.url, "certificate")
         host.onProgressChanged(tab, 100)
     }
