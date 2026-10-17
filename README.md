@@ -109,7 +109,7 @@ no manual steps on the runner.
 **What it does:**
 1. Checks out the source.
 2. Sets up **Temurin JDK 17** — the version AGP 8.7 and Gradle 8.9 require.
-3. Sets up the **Gradle wrapper with caching** (`gradle/actions/setup-gradle@v4`),
+3. Sets up the **Gradle wrapper with caching** (`gradle/actions/setup-gradle@v5`),
    so `~/.gradle` and the wrapper distribution are reused between runs.
 4. Restores the release keystore from repository **Secrets** (see below).
 5. Runs `./gradlew assembleDebug assembleRelease`.
@@ -123,14 +123,44 @@ no manual steps on the runner.
 3. At the bottom of the run summary, expand **Artifacts**.
 4. Download `nimbus-release-apk` (or `nimbus-debug-apk`).
    GitHub downloads it as a `.zip`; the `.apk` is inside.
-5. Copy the `.apk` to an Android 10+ device and allow installation from that
-   source when prompted.
+5. Copy the `.apk` to an Android 10+ device. Allow installation from that
+   source when prompted — that is the normal "sideloading" prompt Android shows
+   for any app that did not come from the Play Store.
+
+**Both APKs are already signed, so you never need to create a keystore.**
+The debug APK is signed automatically by the Android Gradle Plugin, and the
+release APK is signed by the workflow (see below).
 
 Pushing a tag named `v1.0.0` (or similar) additionally publishes the APKs as a
 GitHub **Release** with auto-generated notes, so they can be downloaded without
 signing in to read run logs.
 
-### Release signing (Secrets only — no keystore in the repo)
+### Release signing
+
+The workflow's **Prepare release signing key** step always ends up with a usable
+key, picking one of two modes:
+
+| | Repository secrets configured | No secrets (default / forks) |
+|---|---|---|
+| Key source | your keystore, decoded from `KEYSTORE_BASE64` | throwaway key generated with `keytool` during the run |
+| Stored in the repo | never | never |
+| **Signature across builds** | **stable** | **changes every run** |
+| Upgrade path | install the new APK over the old one | uninstall the old one first |
+| Suitable for | anything you keep updating | quick testing, sideloading, sharing |
+
+Because an APK without a signature cannot be installed at all, the default mode
+generates an **ephemeral** key so a fresh, installable APK comes out of every
+run with zero configuration. That key exists only inside `$RUNNER_TEMP` for the
+lifetime of the job, so its password protects nothing — and because it is
+different on every run, **a new build cannot upgrade an existing install**:
+Android will refuse with `INSTALL_FAILED_UPDATE_INCOMPATIBLE` until you uninstall
+the previous copy.
+
+The workflow states which mode was used in the run summary, and a **Verify
+release APK is signed** step fails the job if the produced APK somehow carries
+no signature — so a broken APK never reaches the artifact list.
+
+#### (Optional) A stable key, so builds can upgrade each other
 
 Create a keystore once, locally:
 
@@ -139,7 +169,7 @@ keytool -genkey -v -keystore nimbus-release.jks \
   -keyalg RSA -keysize 2048 -validity 10000 -alias nimbus
 ```
 
-Base64-encode it **without** the wrapping newlines becoming an issue:
+Base64-encode it:
 
 ```bash
 base64 -w0 nimbus-release.jks > nimbus-release.jks.b64
@@ -162,9 +192,9 @@ reads. `.gitignore` also blocks `*.jks`, `*.keystore` and `keystore.properties`
 as a second line of defence.
 
 > **Pull requests from forks cannot read secrets.** That is expected and
-> supported: with no secrets present the release build still succeeds and
-> simply produces an **unsigned** APK, so `assembleRelease` never breaks CI for
-> external contributors.
+> supported: with no secrets present the workflow generates a throwaway key so
+> the release APK is still signed and installable, and `assembleRelease` never
+> breaks CI for external contributors.
 
 ---
 
@@ -212,8 +242,9 @@ live `WebView`s never depends on how many tabs the user opened.
 ## Static validation
 
 Two scripts check the project **without** requiring the Android SDK or Gradle.
-They are also wired into CI as an advisory pre-flight step, so resource-linking
-mistakes surface in seconds instead of after a full dependency sync.
+The second is also wired into CI as an advisory pre-flight step, so
+resource-linking mistakes surface in seconds instead of after a full
+dependency sync.
 
 ### `tools/validate_project.py`
 
@@ -259,13 +290,38 @@ base artifact, so the script resolves those too.
 python3 tools/check_xml_attributes.py     # needs network on first run
 ```
 
-Current status:
+### `tools/check_workflow.py`
+
+Validates `.github/workflows/*.yml` against the GitHub Actions schema: only
+known keys at workflow / job / step level, exactly one of `uses`/`run` per
+step, `runs-on` present, `needs` resolving, `permissions` scopes known.
+
+This catches the mistake of putting a job-level key inside a step, which
+GitHub rejects outright:
+
+```
+(Line: 128, Col: 9): Unexpected value 'permissions'
+```
+
+```bash
+python3 tools/check_workflow.py
+```
+
+Unlike the other two, this one is a **local / pre-commit** tool and is
+deliberately *not* a step in the workflow: GitHub parses and validates the
+workflow file before it runs any step, so an invalid workflow never reaches
+the point where such a step could execute.
+
+### Current status
 
 ```
 OK - 7 app: attributes and 57 @style refs all resolve
+OK - no static consistency errors found
+OK .github/workflows/build-apk.yml: jobs=['build', 'release'] ...
 ```
 
-It does not check the `android:` namespace, which would need `android.jar`.
+The `android:` namespace is not checked by any of these scripts — that would
+need `android.jar` from the SDK.
 
 ---
 
