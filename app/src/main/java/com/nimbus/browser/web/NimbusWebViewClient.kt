@@ -109,11 +109,16 @@ class NimbusWebViewClient(
         host.onPageFinished(tab, url)
     }
 
+    /**
+     * The API 35 stub declares this with three parameters
+     * (`(Landroid/webkit/WebView;Ljava/lang/String;Z)V`); the four-parameter
+     * form carrying `isAddingToBackForwardList` does not exist in the SDK and
+     * fails with "'doUpdateVisitedHistory' overrides nothing".
+     */
     override fun doUpdateVisitedHistory(
         view: WebView,
         url: String,
-        isReload: Boolean,
-        isAddingToBackForwardList: Boolean
+        isReload: Boolean
     ) {
         tab.canGoBack = view.canGoBack()
         tab.canGoForward = view.canGoForward()
