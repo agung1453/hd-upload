@@ -228,7 +228,7 @@ class BrowserActivity : AppCompatActivity(), WebViewHost, StartPageHost {
             when {
                 tab.isStartPage -> openNewTab()
                 tab.isLoading && web != null -> {
-                    web.stop()
+                    web.stopLoading()
                     tab.isLoading = false
                     updateReloadButton()
                     stopProgress()

@@ -134,8 +134,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun syncSummary(preference: ListPreference) {
+        // ListPreference.getEntryAt() does not exist in androidx.preference
+        // 1.2.1; getEntries() is the supported accessor.
         val index = preference.findIndexOfValue(preference.value)
-        val entry = index.takeIf { it >= 0 }?.let { preference.getEntryAt(it) }?.toString()
+        val entries = preference.entries
+        val entry = if (index in entries.indices) entries[index].toString() else null
         preference.summary = entry ?: preference.title
     }
 

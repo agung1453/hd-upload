@@ -184,6 +184,8 @@ PROP_RE = re.compile(
     re.M,
 )
 ENUM_ENTRY_RE = re.compile(r"^\s{4}([A-Z][A-Z0-9_]{2,})\s*[(,;]?\s*$", re.M)
+# enum entry followed by its constructor arguments, e.g. GOOGLE("google", ...)
+ENUM_ENTRY_ARG_RE = re.compile(r"^\s{2,}([A-Z][A-Z0-9_]{2,})\s*[(,;]", re.M)
 
 for path in kotlin_files:
     with open(path, encoding="utf-8") as handle:
@@ -438,6 +440,53 @@ for (rtype, name, qual), files in sorted(value_defs.items()):
             f"DUPLICATE @{rtype}/{name} for qualifier '{qual or 'default'}' "
             f"defined in: {', '.join(files)}"
         )
+
+# --------------------------------------------------------------------------- #
+# 11. SCREAMING_SNAKE_CASE names must resolve in the scope that uses them.
+#
+# Kotlin lets you write `SCHEME_HTTPS` where only `Constants.SCHEME_HTTPS`
+# exists, or `$TITLE` inside a raw string where no TITLE is declared, and the
+# failure only shows up in a real compiler run. Both shipped that way once.
+# --------------------------------------------------------------------------- #
+
+DECL_SNAKE = re.compile(
+    r"^\s*(?:public |internal |private )?(?:const |lateinit )*"
+    r"(?:val|var|object|class)\s+([A-Z][A-Z0-9_]{2,})\b",
+    re.M,
+)
+
+# `$NAME` inside any literal: a template referencing an undeclared constant.
+TEMPLATE_SNAKE = re.compile(r"\$([A-Z][A-Z0-9_]{2,})\b")
+
+# Bare uses in code (strings + comments already stripped).
+BARE_SNAKE = re.compile(r"(?<![\w.$])([A-Z][A-Z0-9_]{2,})\b")
+
+# Names that Kotlin / the platform define.
+BUILTIN_SNAKE = {"URL", "URI", "HTTP", "HTTPS", "JSON", "UTF"}
+
+for path in kotlin_files:
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+    code = strip_kotlin(text)
+    # enum entries are declared bare inside the enum body, e.g. `SYSTEM("a"),`
+    declared = set(DECL_SNAKE.findall(code))
+    if "enum class" in code:
+        # enum entries are bare in the enum body: `SYSTEM("a"),` / `DUCKDUCKGO(`
+        declared |= set(ENUM_ENTRY_ARG_RE.findall(code))
+
+    for name in TEMPLATE_SNAKE.findall(text):
+        if name not in declared and name not in BUILTIN_SNAKE:
+            err(
+                f"UNDECLARED ${name} string template in {rel(path)} "
+                f"(declared here: {sorted(declared) or 'none'})"
+            )
+
+    for name in BARE_SNAKE.findall(code):
+        if name not in declared and name not in BUILTIN_SNAKE:
+            err(
+                f"UNDECLARED {name} in {rel(path)} - qualify it "
+                f"(e.g. Constants.{name}) or declare it in this file"
+            )
 
 # --------------------------------------------------------------------------- #
 # Report

@@ -22,7 +22,7 @@ object ErrorPage {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>$TITLE</title>
+<title>@@TITLE@@</title>
 <style>
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }

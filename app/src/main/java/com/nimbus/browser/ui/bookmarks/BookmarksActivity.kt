@@ -92,8 +92,9 @@ class BookmarksActivity : AppCompatActivity() {
 
         // Any change made from elsewhere in the app (the toolbar star, the menu)
         // refreshes this list without the screen having to be told.
-        changeListener = { reload() }
-        BookmarkRepository.addChangeListener(changeListener)
+        val listener: () -> Unit = { reload() }
+        changeListener = listener
+        BookmarkRepository.addChangeListener(listener)
 
         reload()
     }

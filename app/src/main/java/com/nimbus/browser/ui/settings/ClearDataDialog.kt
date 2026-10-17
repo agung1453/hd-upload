@@ -101,7 +101,12 @@ class ClearDataDialog : DialogFragment() {
                     clearCacheDirs(context)
                 }
                 if (clearDownloads) {
-                    runCatching { DownloadManager(context).remove(ids) }
+                    runCatching {
+                        val manager = context.getSystemService(
+                            Context.DOWNLOAD_SERVICE
+                        ) as? DownloadManager
+                        if (manager != null && ids.isNotEmpty()) manager.remove(*ids)
+                    }
                 }
             }
 
@@ -122,15 +127,15 @@ class ClearDataDialog : DialogFragment() {
         }
     }
 
-    /** Wipes the app cache plus the (usually separate) WebView cache directory. */
+    /**
+     * Wipes the app cache.
+     *
+     * There is no longer a separate WebView cache directory to clear: since
+     * API 33 WebView keeps its cache inside the app cache dir, and the old
+     * `Context.getWebViewCacheDir()` is no longer public SDK API.
+     */
     private fun clearCacheDirs(context: Context) {
         runCatching { context.cacheDir.deleteRecursively() }
-        runCatching {
-            val webCache = context.webViewCacheDir ?: return@runCatching
-            if (webCache.absolutePath != context.cacheDir.absolutePath) {
-                webCache.deleteRecursively()
-            }
-        }
     }
 
     // ------------------------------------------------------------------ downloads
@@ -141,7 +146,7 @@ class ClearDataDialog : DialogFragment() {
             .getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
             ?: return@runCatching LongArray(0)
         val ids = mutableListOf<Long>()
-        manager.query(DownloadManager.Query().setFilterOnlyVisibleDownloads()).use { cursor ->
+        manager.query(DownloadManager.Query()).use { cursor ->
             val idColumn = cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID)
             while (cursor.moveToNext()) {
                 ids += cursor.getLong(idColumn)

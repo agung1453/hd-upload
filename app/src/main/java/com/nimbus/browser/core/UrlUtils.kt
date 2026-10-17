@@ -52,7 +52,8 @@ object UrlUtils {
     /** Adds `https://` when the user omitted a scheme. */
     fun ensureScheme(input: String): String {
         val text = input.trim()
-        return if (SCHEME_PATTERN.containsMatchIn(text)) text else "$SCHEME_HTTPS$text"
+        return if (SCHEME_PATTERN.containsMatchIn(text)) text
+            else "${Constants.SCHEME_HTTPS}$text"
     }
 
     /**
@@ -72,8 +73,8 @@ object UrlUtils {
             val host = java.net.URI(url).host
             host?.removePrefix("www.") ?: ""
         } catch (_: Exception) {
-            url.removePrefix(SCHEME_HTTPS)
-                .removePrefix(SCHEME_HTTP)
+            url.removePrefix(Constants.SCHEME_HTTPS)
+                .removePrefix(Constants.SCHEME_HTTP)
                 .substringBefore('/')
                 .removePrefix("www.")
         }
@@ -83,14 +84,15 @@ object UrlUtils {
     fun displayUrl(url: String?): String {
         if (url.isNullOrEmpty()) return ""
         var out = url.trim()
-        out = out.removePrefix("$SCHEME_HTTPS://").removePrefix("$SCHEME_HTTP://")
+        out = out.removePrefix("${Constants.SCHEME_HTTPS}://")
+            .removePrefix("${Constants.SCHEME_HTTP}://")
         out = out.removePrefix("www.")
         if (out.endsWith("/")) out = out.dropLast(1)
         return out
     }
 
     fun isSecure(url: String?): Boolean =
-        url != null && url.startsWith("$SCHEME_HTTPS://", ignoreCase = true)
+        url != null && url.startsWith("${Constants.SCHEME_HTTPS}://", ignoreCase = true)
 
     fun isInternal(url: String?): Boolean =
         url != null && (url.startsWith("about:") || url == Constants.ABOUT_BLANK)

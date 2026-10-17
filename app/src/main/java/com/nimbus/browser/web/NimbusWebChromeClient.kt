@@ -1,9 +1,12 @@
 package com.nimbus.browser.web
 
 import android.content.Context
+import android.view.View
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import com.nimbus.browser.model.BrowserTab
 
 class NimbusWebChromeClient(

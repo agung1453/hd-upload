@@ -1,12 +1,12 @@
 package com.nimbus.browser.core
 
 import android.content.Context
-import android.graphics.Insets
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 

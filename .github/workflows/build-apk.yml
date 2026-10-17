@@ -143,7 +143,7 @@ jobs:
           rc=${PIPESTATUS[0]}
           if [ "$rc" -ne 0 ]; then
             echo "::error::Gradle exited $rc. Relevant lines:"
-            grep -nE "^e: |^w: .*(deprecat|error)|error:|ERROR:|FAILURE:|What went wrong|^Caused by:|Execution failed|AAPT|Could not (resolve|find|download)" build.log | head -60
+            grep -nE "^e: |^w: .*(deprecat|error)|error:|ERROR:|FAILURE:|What went wrong|^Caused by:|Execution failed|AAPT|Could not (resolve|find|download)" build.log | head -60 || true
             echo "----- last 40 lines of build.log -----"
             tail -40 build.log
           fi

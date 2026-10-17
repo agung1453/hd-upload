@@ -2,8 +2,11 @@ package com.nimbus.browser.web
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.net.http.SslError
+import android.net.http.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.nimbus.browser.core.Constants
@@ -48,9 +51,23 @@ class NimbusWebViewClient(
         }
     }
 
+    /**
+     * Reads one `key=value` pair out of an `intent://` fragment, e.g.
+     * `intent://host/path#Intent;scheme=https;S.browser_fallback_url=x;end`.
+     *
+     * `Uri.getStringExtra()` is not public SDK API, so the fragment is parsed
+     * by hand instead of relying on it.
+     */
+    private fun intentExtra(uri: Uri, key: String): String? =
+        uri.fragment
+            ?.split(';')
+            ?.firstOrNull { it.startsWith("$key=") }
+            ?.substringAfter('=')
+            ?.takeIf { it.isNotEmpty() }
+
     private fun dispatchIntent(uri: Uri) {
-        val scheme = uri.getStringExtra("scheme")
-        val fallback = uri.getStringExtra("browser_fallback_url")
+        val scheme = intentExtra(uri, "scheme")
+        val fallback = intentExtra(uri, "browser_fallback_url")
         val target = when {
             !scheme.isNullOrEmpty() -> {
                 val host = uri.host.orEmpty()
@@ -131,7 +148,7 @@ class NimbusWebViewClient(
         // Sub-resource failures are ignored on purpose; the page handles them.
     }
 
-    override fun onReceivedSslError(view: WebView, handler: android.net.http.SslErrorHandler, error: android.net.http.SslError) {
+    override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
         // We never bypass certificate errors: doing so would make the browser
         // useless as a privacy tool.
         handler.cancel()

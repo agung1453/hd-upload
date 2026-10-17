@@ -72,7 +72,7 @@ class BrowserTab(
      */
     internal fun releaseWebView() {
         webView?.let { web ->
-            savedState = runCatching { web.saveState() }.getOrNull()
+            savedState = runCatching { Bundle().also { web.saveState(it) } }.getOrNull()
             web.stopLoading()
             web.webViewClient = android.webkit.WebViewClient()
             web.webChromeClient = null
