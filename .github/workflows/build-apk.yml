@@ -1,247 +1,323 @@
-name: Build APK
+name: Build and test
 
 on:
   push:
-    branches: ["**"]
-    tags: ["v*"]
+    branches: [ "dev", "main", "indexing", "release/**" ]
+    paths-ignore:
+      - '**.md'
+      - 'fastlane/**'
+      - '.github/workflows/crowdin_contributors.yml'
   pull_request:
-  workflow_dispatch:
-    inputs:
-      release_build:
-        description: "Also build the release APK"
-        type: boolean
-        required: false
-        default: true
+    branches: [ "dev" ]
+    paths-ignore:
+      - '**.md'
+      - 'fastlane/**'
+      - '.github/workflows/crowdin_contributors.yml'
+  workflow_dispatch: { }
 
-permissions:
-  contents: read
+env:
+  # Misc
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-concurrency:
-  group: nimbus-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Signing info
+  IDE_SIGNING_ALIAS: ${{ secrets.IDE_SIGNING_ALIAS }}
+  IDE_SIGNING_AUTH_PASS: ${{ secrets.IDE_SIGNING_AUTH_PASS }}
+  IDE_SIGNING_AUTH_USER: ${{ secrets.IDE_SIGNING_AUTH_USER }}
+  IDE_SIGNING_KEY_PASS: ${{ secrets.IDE_SIGNING_KEY_PASS }}
+  IDE_SIGNING_STORE_PASS: ${{ secrets.IDE_SIGNING_STORE_PASS }}
+  IDE_SIGNING_URL: ${{ secrets.IDE_SIGNING_URL }}
+  IDE_SIGNING_KEY_BIN: ${{ secrets.IDE_SIGNING_KEY_BIN }}
+
+  # Publishing credentials
+  ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MVN_USERNAME }}
+  ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MVN_PASSWORD }}
+  ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MVN_SIGNING_KEY }}
+  ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.MVN_SIGNING_KEY_ID }}
+  ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MVN_SIGNING_KEY_PASSWORD }}
+
+  # Build configuration
+  BUILD_JAVA_VERSION: '17'
+  BUILD_JAVA_DIST: 'adopt'
+  BUILD_IS_RELEASE: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release/**' }}
+  ReleaseAndroidIDE: ${{ github.ref == 'refs/heads/main' }}
 
 jobs:
-  build:
-    name: Build debug + release APK
-    # Pinned: ubuntu-latest switches to Ubuntu 26 on 2026-10-19.
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-
-    env:
-      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8
-
+  build_apk:
+    strategy:
+      matrix:
+        build_type: ['debug', 'release']
+    name: Build APK
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v5
-
-      # JDK 17 is what AGP 8.7.x / Gradle 8.9 require. The runner image also
-      # ships its own JDK, but pinning Temurin 17 keeps the build reproducible.
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "17"
-
-      # Installs nothing globally: it just makes the checked-in Gradle wrapper
-      # work and caches ~/.gradle between runs.
-      - name: Set up Gradle wrapper (cached)
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          cache-read-only: ${{ github.event_name == 'pull_request' }}
-          cache-cleanup: on-success
-
-      - name: Ensure wrapper is executable
+          java-version: ${{ env.BUILD_JAVA_VERSION }}
+          distribution: ${{ env.BUILD_JAVA_DIST }}
+      - name: Change Gradle wrapper permissions
         run: chmod +x ./gradlew
-
-      # Fast pre-flight that catches the whole class of resource-linking errors
-      # Gradle would otherwise report only after a full sync, e.g.
-      # "attribute indicatorDirection not found". Purely advisory: the build
-      # below is authoritative, so a flaky download can never fail the job.
-      - name: Pre-flight resource reference check
-        continue-on-error: true
-        run: |
-          set +e
-          FAILED=0
-          # The hosted runner already ships an Android SDK; point the platform
-          # override checker at its android.jar when one is present.
-          if [ -z "${ANDROID_JAR:-}" ] && [ -n "${ANDROID_HOME:-}" ]; then
-            ANDROID_JAR=$(ls -1 "$ANDROID_HOME"/platforms/*/android.jar 2>/dev/null | sort -V | tail -1 || true)
-            export ANDROID_JAR
-          fi
-          echo "ANDROID_JAR=${ANDROID_JAR:-<none>}"
-          for script in tools/validate_project.py tools/check_xml_attributes.py tools/check_android_overrides.py; do
-            if [ ! -f "$script" ]; then
-              echo "::warning::$script is not present in this checkout - skipping"
-              continue
-            fi
-            echo "--- $script"
-            python3 "$script"
-            rc=$?
-            echo "--- $script exited $rc"
-            [ "$rc" -ne 0 ] && FAILED=1
-          done
-          if [ "$FAILED" -ne 0 ]; then
-            echo "::warning::A pre-flight check reported problems. The Gradle build below is authoritative."
-          fi
-          exit 0
-
-      # The release APK must be signed or Android refuses to install it, so a
-      # key is always available:
-      #
-      #   * repository Secrets present -> use them. The signature is STABLE, so
-      #     a new build can upgrade an already-installed copy in place.
-      #   * otherwise -> mint a throwaway key here, purely so the APK is
-      #     installable. It lives only in $RUNNER_TEMP and dies with the job,
-      #     so its password protects nothing and every build is signed with a
-      #     different key (an upgrade then requires an uninstall first).
-      - name: Prepare release signing key
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-          KEYSTORE_PATH="$RUNNER_TEMP/nimbus-release.jks"
-
-          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] \
-             && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
-            echo "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
-            SIGNING_SOURCE="repository secrets (STABLE signature - upgrades in place)"
-            echo "::notice title=Signing::Using repository secrets; signature is stable."
-          else
-            # No secrets configured, or this is a fork. Mint an ephemeral key.
-            # PKCS12 cannot hold a separate key password, so both are the same.
-            KEYSTORE_PASSWORD="nimbus"
-            KEY_ALIAS="nimbus"
-            KEY_PASSWORD="nimbus"
-            keytool -genkeypair \
-              -keystore "$KEYSTORE_PATH" \
-              -storetype PKCS12 \
-              -alias "$KEY_ALIAS" \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass "$KEYSTORE_PASSWORD" \
-              -keypass "$KEY_PASSWORD" \
-              -dname "CN=Nimbus Browser, OU=Build, O=Nimbus, C=US" \
-              -noprompt
-            SIGNING_SOURCE="ephemeral key generated for this run (NOT stable - uninstall before upgrading)"
-            echo "::notice title=Signing::No secrets found; generated a throwaway key so the APK is installable."
-          fi
-
-          chmod 600 "$KEYSTORE_PATH"
-          {
-            echo "NIMBUS_STORE_FILE=$KEYSTORE_PATH"
-            echo "NIMBUS_STORE_PASSWORD=$KEYSTORE_PASSWORD"
-            echo "NIMBUS_KEY_ALIAS=$KEY_ALIAS"
-            echo "NIMBUS_KEY_PASSWORD=$KEY_PASSWORD"
-          } >> "$GITHUB_ENV"
-
-          {
-            echo "### Signing"
-            echo ""
-            echo "- Source: $SIGNING_SOURCE"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Build APKs
-        run: |
-          set +e
-          ./gradlew --no-daemon --stacktrace --warning-mode=summary \
-            assembleDebug assembleRelease 2>&1 | tee build.log
-          rc=${PIPESTATUS[0]}
-          if [ "$rc" -ne 0 ]; then
-            echo "::error::Gradle exited $rc. Relevant lines:"
-            grep -nE "^e: |^w: .*(deprecat|error)|error:|ERROR:|FAILURE:|What went wrong|^Caused by:|Execution failed|AAPT|Could not (resolve|find|download)" build.log | head -60 || true
-            echo "----- last 40 lines of build.log -----"
-            tail -40 build.log
-          fi
-          exit "$rc"
-
-      - name: Collect APKs and checksums
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          find app/build/outputs/apk -name "*.apk" -exec cp {} dist/ \;
-          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
-          echo "--- artifacts ---"
-          ls -la dist
-
-      # A silently unsigned APK would still upload fine and only fail on the
-      # user's phone, so prove the signature before shipping it.
-      - name: Verify release APK is signed
-        run: |
-          set -euo pipefail
-          APK="dist/app-release.apk"
-          test -f "$APK" || { echo "::error::release APK missing"; exit 1; }
-
-          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
-          APKSIGNER=$(ls -1 "$SDK_ROOT"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -1 || true)
-          if [ -n "$APKSIGNER" ] && [ -x "$APKSIGNER" ]; then
-            "$APKSIGNER" verify --print-certs "$APK" | head -5
-            echo "apksigner verify: OK"
-          elif unzip -l "$APK" | grep -qE 'META-INF/.+\.(RSA|DSA|EC)'; then
-            echo "v1 (JAR) signature block present: OK"
-          else
-            echo "::error::release APK carries no signature and cannot be installed"
-            exit 1
-          fi
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v6
+      - name: Restore cache
+        uses: actions/cache@v4
         with:
-          name: nimbus-debug-apk
-          path: dist/*-debug.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload release APK
-        uses: actions/upload-artifact@v6
-        with:
-          name: nimbus-release-apk
           path: |
-            dist/*-release.apk
-            dist/SHA256SUMS.txt
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Write job summary
-        if: always()
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Assemble ${{ matrix.build_type }} APK
         run: |
-          {
-            echo "## Nimbus Browser build"
-            echo ""
-            echo "| Artifact | Notes |"
-            echo "| --- | --- |"
-            echo "| \`nimbus-debug-apk\` | Debuggable build (applicationId suffix \`.debug\`) |"
-            echo "| \`nimbus-release-apk\` | R8-minified + resource-shrunk build |"
-            echo ""
-            echo "Download them from this run's **Artifacts** section."
-          } >> "$GITHUB_STEP_SUMMARY"
+          build_type=${{ matrix.build_type }}
+          ./gradlew :core:app:assemble${build_type^}
+      - name: Copy ${{ matrix.build_type }} APK
+        run: |
+          cp core/app/build/outputs/apk/${{ matrix.build_type }}/app-*.apk ./
+      - name: Upload arm64-v8a ${{ matrix.build_type }} APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-arm64-v8a-${{ matrix.build_type }}
+          path: app-arm64-v8a-${{ matrix.build_type }}.apk
+      - name: Upload armeabi-v7a ${{ matrix.build_type }} APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-armeabi-v7a-${{ matrix.build_type }}
+          path: app-armeabi-v7a-${{ matrix.build_type }}.apk
+      - name: Upload x86_64 ${{ matrix.build_type }} APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-x86_64-${{ matrix.build_type }}
+          path: app-x86_64-${{ matrix.build_type }}.apk
+      - name: Upload ${{ matrix.build_type }} mappings
+        if: ${{ always() && matrix.build_type == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-mappings
+          path: '**/build/outputs/mapping'
 
-  # Publishing needs `contents: write`, which is a *job*-level setting. Keeping
-  # it in its own job means the build above stays on `contents: read`, and the
-  # write token is never handed to the build steps.
-  release:
-    name: Publish GitHub Release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    # Pinned: ubuntu-latest switches to Ubuntu 26 on 2026-10-19.
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    permissions:
-      contents: write
-
+  run_unit_tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
     steps:
-      - name: Download release APK artifact
-        uses: actions/download-artifact@v7
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          name: nimbus-release-apk
-          path: release
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.BUILD_JAVA_VERSION }}
+          distribution: ${{ env.BUILD_JAVA_DIST }}
+      - name: Change Gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Run unit tests
+        run: ./gradlew runTestsInCI --continue
+        env:
+          ANDROIDIDE_TEST: true
+      - name: Upload test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-unit-tests
+          path: '**/build/reports/tests/'
 
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
+  run_tooling_api_tests:
+    name: Build and test Tooling API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          files: |
-            release/*.apk
-            release/SHA256SUMS.txt
-          fail_on_unmatched_files: false
-          generate_release_notes: true
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.BUILD_JAVA_VERSION }}
+          distribution: ${{ env.BUILD_JAVA_DIST }}
+      - name: Change Gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Run tooling API tests
+        run: ./gradlew :tooling:impl:build --continue
+        env:
+          ANDROIDIDE_TEST: true
+          TEST_TOOLING_API_IMPL: true
+      - name: Upload test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-tooling-api-tests
+          path: '**/build/reports/tests/'
+
+  run_connected_checks:
+    name: Run connected checks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [ 26, 32 ]
+        target: [ default ]
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.BUILD_JAVA_VERSION }}
+          distribution: ${{ env.BUILD_JAVA_DIST }}
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Change Gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Run connected checks
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew connectedCheck --info --stacktrace
+      - name: Upload test reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-android-tests-${{ matrix.api-level }}-${{ matrix.target }}
+          path: '**/build/reports/androidTests/'
+
+  publish:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs: [ build_apk, run_unit_tests, run_tooling_api_tests ]
+    if: |
+      always()
+      && github.ref == 'refs/heads/main'
+      && github.event_name != 'pull_request'
+      && needs.build_apk.result == 'success'
+      && needs.run_unit_tests.result == 'success'
+      && needs.run_tooling_api_tests.result == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.BUILD_JAVA_VERSION }}
+          distribution: ${{ env.BUILD_JAVA_DIST }}
+      - name: Download arm64-v8a APK
+        uses: actions/download-artifact@v4
+        with:
+          name: apk-arm64-v8a-release
+      - name: Download x86_64 APK
+        uses: actions/download-artifact@v4
+        with:
+          name: apk-x86_64-release
+      - name: Download armeabi-v7a APK
+        uses: actions/download-artifact@v4
+        with:
+          name: apk-armeabi-v7a-release
+      - name: Change Gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Generate checksums
+        run: |
+          mkdir -p build
+          
+          md5sum *.apk > build/CHECKSUMS-md5.txt
+          sha256sum *.apk > build/CHECKSUMS-sha256.txt
+          sha512sum *.apk > build/CHECKSUMS-sha512.txt
+          
+          find build -type f -name "CHECKSUMS*.txt" -exec echo {} \; -exec cat {} \; -exec echo "" \;
+      - name: Publish release
+        run: ./gradlew nyxMake nyxMark nyxPublish publish release --stacktrace
+      - name: Archive Nyx state file
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: .nyx-state-${{ github.job }}.json
+          path: build/nyx-state.json
+
+  publish_snapshots:
+    name: Publish package snapshots
+    runs-on: ubuntu-latest
+    needs: [ build_apk ]
+    if: ${{ always() && github.ref != 'refs/heads/main' && github.event_name != 'pull_request' && needs.build_apk.result == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.BUILD_JAVA_VERSION }}
+          distribution: ${{ env.BUILD_JAVA_DIST }}
+      - name: Change Gradle wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Publish snapshots
+        run: ./gradlew publishAllPublicationsToMavenCentralRepository --stacktrace
