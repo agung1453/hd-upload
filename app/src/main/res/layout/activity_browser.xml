@@ -146,7 +146,7 @@
             android:max="100"
             android:visibility="gone"
             app:indicatorColor="@color/accent"
-            app:indicatorDirection="endToStart"
+            app:indicatorDirectionLinear="endToStart"
             app:trackColor="@color/separator"
             app:trackCornerRadius="0dp"
             app:trackThickness="2dp" />

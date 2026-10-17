@@ -211,8 +211,13 @@ live `WebView`s never depends on how many tabs the user opened.
 
 ## Static validation
 
-`tools/validate_project.py` checks the project **without** requiring the Android
-SDK or Gradle:
+Two scripts check the project **without** requiring the Android SDK or Gradle.
+They are also wired into CI as an advisory pre-flight step, so resource-linking
+mistakes surface in seconds instead of after a full dependency sync.
+
+### `tools/validate_project.py`
+
+Project-internal consistency:
 
 - every XML file is well-formed
 - every `@drawable/`, `@color/`, `@string/`, `@dimen/`, `@style/`, `@array/`
@@ -222,13 +227,45 @@ SDK or Gradle:
 - every `binding.<id>` access exists in that layout
 - every Activity declared in the manifest exists as a Kotlin class
 - every `com.nimbus.*` import resolves to a declared type
+- Kotlin braces/parens/brackets balance
+- no two resources share the same type **and** qualifier
+- `entries`/`entryValues` arrays have matching lengths
+- `PREF_KEY_*` values agree with the `Prefs.KEY_*` constants
 
 ```bash
 python3 tools/validate_project.py
 ```
 
-It exits non-zero on any problem, so it can be dropped into a pre-commit hook or
-a CI step too.
+### `tools/check_xml_attributes.py`
+
+Checks references that come from **libraries**, which the script above cannot
+see. It downloads the declared AARs (cached in `$TMPDIR`) and verifies that
+every `app:` attribute, `@style/` reference and `<style parent="...">` really
+exists in the dependency graph.
+
+This is the check that catches errors like:
+
+```
+error: attribute indicatorDirection not found
+```
+
+Material split `indicatorDirection` into `indicatorDirectionLinear`
+(`LinearProgressIndicator`) and `indicatorDirectionCircular`
+(`CircularProgressIndicator`); likewise the `-ktx` modules such as
+`preference-ktx` carry no resources themselves — the attributes live in the
+base artifact, so the script resolves those too.
+
+```bash
+python3 tools/check_xml_attributes.py     # needs network on first run
+```
+
+Current status:
+
+```
+OK - 7 app: attributes and 57 @style refs all resolve
+```
+
+It does not check the `android:` namespace, which would need `android.jar`.
 
 ---
 

@@ -1,4 +1,3 @@
-
 name: Build APK
 
 on:
@@ -23,27 +22,28 @@ concurrency:
 
 jobs:
   build:
-    name: Build debug and release APK
+    name: Build debug + release APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
     env:
-      GRADLE_OPTS: >-
-        -Dorg.gradle.jvmargs=-Xmx3072m
-        -XX:MaxMetaspaceSize=1024m
-        -Dfile.encoding=UTF-8
+      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # JDK 17 is what AGP 8.7.x / Gradle 8.9 require. The runner image also
+      # ships its own JDK, but pinning Temurin 17 keeps the build reproducible.
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
+      # Installs nothing globally: it just makes the checked-in Gradle wrapper
+      # work and caches ~/.gradle between runs.
+      - name: Set up Gradle wrapper (cached)
         uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
@@ -52,6 +52,19 @@ jobs:
       - name: Ensure wrapper is executable
         run: chmod +x ./gradlew
 
+      # Fast pre-flight (~20 s) that catches the whole class of resource-linking
+      # errors Gradle would otherwise report only after a full sync, e.g.
+      # "attribute indicatorDirection not found". Purely advisory: the real build
+      # below is authoritative, so a flaky download can never fail the job.
+      - name: Pre-flight resource reference check
+        continue-on-error: true
+        run: |
+          python3 tools/validate_project.py
+          python3 tools/check_xml_attributes.py
+
+      # Release signing material comes only from repository Secrets. Nothing is
+      # committed. On forks (where secrets are empty) this step is a no-op and
+      # the release build simply produces an unsigned APK.
       - name: Restore release keystore from Secrets
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -60,58 +73,35 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           set -euo pipefail
-
-          if [ -n "$KEYSTORE_BASE64" ] &&
-             [ -n "$KEYSTORE_PASSWORD" ] &&
-             [ -n "$KEY_ALIAS" ] &&
-             [ -n "$KEY_PASSWORD" ]; then
-
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] \
+             && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
             KEYSTORE_PATH="$RUNNER_TEMP/nimbus-release.jks"
-
-            printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
             chmod 600 "$KEYSTORE_PATH"
-
             {
               echo "NIMBUS_STORE_FILE=$KEYSTORE_PATH"
               echo "NIMBUS_STORE_PASSWORD=$KEYSTORE_PASSWORD"
               echo "NIMBUS_KEY_ALIAS=$KEY_ALIAS"
               echo "NIMBUS_KEY_PASSWORD=$KEY_PASSWORD"
             } >> "$GITHUB_ENV"
-
-            echo "Release signing secrets found."
+            echo "::notice title=Signing::Release signing enabled from repository secrets."
           else
-            echo "No release keystore configured."
-            echo "Release build requires compatible Gradle signing configuration."
+            echo "::notice title=Signing::No keystore secrets found (normal for forks) - release APK will be unsigned."
           fi
 
-      - name: Build debug APK
-        run: ./gradlew --no-daemon --stacktrace --warning-mode=summary assembleDebug
-
-      - name: Build release APK
-        if: >-
-          github.event_name != 'workflow_dispatch' ||
-          inputs.release_build == true
-        run: ./gradlew --no-daemon --stacktrace --warning-mode=summary assembleRelease
+      - name: Build APKs
+        run: ./gradlew --no-daemon --stacktrace --warning-mode=summary assembleDebug assembleRelease
 
       - name: Collect APKs and checksums
         run: |
           set -euo pipefail
-
           mkdir -p dist
-
-          find app/build/outputs/apk -type f -name "*.apk" \
-            -exec cp {} dist/ \;
-
-          if ! ls dist/*.apk >/dev/null 2>&1; then
-            echo "No APK files were generated."
-            exit 1
-          fi
-
-          cd dist
-          sha256sum *.apk > SHA256SUMS.txt
-
-          echo "Generated artifacts:"
-          ls -lh
+          find app/build/outputs/apk -name "*.apk" -exec cp {} dist/ \;
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+          echo "--- artifacts ---"
+          ls -la dist
+          echo "--- apk contents (debug) ---"
+          unzip -l dist/app-debug.apk | tail -n 3 || true
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -122,9 +112,6 @@ jobs:
           retention-days: 14
 
       - name: Upload release APK
-        if: >-
-          github.event_name != 'workflow_dispatch' ||
-          inputs.release_build == true
         uses: actions/upload-artifact@v4
         with:
           name: nimbus-release-apk
@@ -134,38 +121,30 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      # On a version tag, additionally publish the APKs as a GitHub Release so
+      # they can be downloaded without signing in to read run logs.
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        permissions:
+          contents: write
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.apk
+            dist/SHA256SUMS.txt
+          fail_on_unmatched_files: false
+          generate_release_notes: true
+
       - name: Write job summary
         if: always()
         run: |
           {
             echo "## Nimbus Browser build"
             echo ""
-            echo "- Debug APK: automatically debug-signed by Android Gradle Plugin."
-            echo "- Release APK: depends on Gradle release signing configuration."
-            echo "- Download APKs from the Actions run Artifacts section."
+            echo "| Artifact | Notes |"
+            echo "| --- | --- |"
+            echo "| \`nimbus-debug-apk\` | Debuggable build (applicationId suffix \`.debug\`) |"
+            echo "| \`nimbus-release-apk\` | R8-minified + resource-shrunk build |"
+            echo ""
+            echo "Download them from this run's **Artifacts** section."
           } >> "$GITHUB_STEP_SUMMARY"
-
-  publish:
-    name: Publish GitHub Release
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: nimbus-*-apk
-          path: artifacts
-          merge-multiple: true
-
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            artifacts/*.apk
-            artifacts/SHA256SUMS.txt
-          fail_on_unmatched_files: false
-          generate_release_notes: true
