@@ -52,9 +52,9 @@ jobs:
       - name: Ensure wrapper is executable
         run: chmod +x ./gradlew
 
-      # Fast pre-flight (~20 s) that catches the whole class of resource-linking
-      # errors Gradle would otherwise report only after a full sync, e.g.
-      # "attribute indicatorDirection not found". Purely advisory: the real build
+      # Fast pre-flight that catches the whole class of resource-linking errors
+      # Gradle would otherwise report only after a full sync, e.g.
+      # "attribute indicatorDirection not found". Purely advisory: the build
       # below is authoritative, so a flaky download can never fail the job.
       - name: Pre-flight resource reference check
         continue-on-error: true
@@ -100,8 +100,6 @@ jobs:
           (cd dist && sha256sum *.apk > SHA256SUMS.txt)
           echo "--- artifacts ---"
           ls -la dist
-          echo "--- apk contents (debug) ---"
-          unzip -l dist/app-debug.apk | tail -n 3 || true
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -121,20 +119,6 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # On a version tag, additionally publish the APKs as a GitHub Release so
-      # they can be downloaded without signing in to read run logs.
-      - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        permissions:
-          contents: write
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/*.apk
-            dist/SHA256SUMS.txt
-          fail_on_unmatched_files: false
-          generate_release_notes: true
-
       - name: Write job summary
         if: always()
         run: |
@@ -148,3 +132,31 @@ jobs:
             echo ""
             echo "Download them from this run's **Artifacts** section."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # Publishing needs `contents: write`, which is a *job*-level setting. Keeping
+  # it in its own job means the build above stays on `contents: read`, and the
+  # write token is never handed to the build steps.
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download release APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nimbus-release-apk
+          path: release
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.apk
+            release/SHA256SUMS.txt
+          fail_on_unmatched_files: false
+          generate_release_notes: true
