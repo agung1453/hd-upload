@@ -312,11 +312,32 @@ deliberately *not* a step in the workflow: GitHub parses and validates the
 workflow file before it runs any step, so an invalid workflow never reaches
 the point where such a step could execute.
 
+### `tools/check_android_overrides.py`
+
+Checks that every `override fun` actually overrides something, by reading the
+platform stubs. Set `ANDROID_JAR` (or let it find `$ANDROID_HOME`) to enable it;
+it skips silently otherwise, so it is safe in a pre-commit hook.
+
+This exists because of one expensive mistake: `onReceivedTitle` was written as a
+`WebViewClient` override, but it is a **`WebChromeClient`** callback - the
+compiler only says `'onReceivedTitle' overrides nothing`, and it took a full CI
+round-trip to find. `android.webkit.WebViewClient` has no such method.
+
+```bash
+ANDROID_JAR=$ANDROID_HOME/platforms/android-35/android.jar \
+    python3 tools/check_android_overrides.py
+# OK - 22 platform override(s) verified against android.jar
+```
+
+It honours nested and anonymous `object : Super()` bodies, so overrides inside
+a probe `WebViewClient` are not misattributed to the enclosing class.
+
 ### Current status
 
 ```
-OK - 7 app: attributes and 57 @style refs all resolve
 OK - no static consistency errors found
+OK - 7 app: attributes and 57 @style refs all resolve
+OK - 22 platform override(s) verified against android.jar
 OK .github/workflows/build-apk.yml: jobs=['build', 'release'] ...
 ```
 

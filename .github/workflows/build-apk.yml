@@ -62,7 +62,14 @@ jobs:
         run: |
           set +e
           FAILED=0
-          for script in tools/validate_project.py tools/check_xml_attributes.py; do
+          # The hosted runner already ships an Android SDK; point the platform
+          # override checker at its android.jar when one is present.
+          if [ -z "${ANDROID_JAR:-}" ] && [ -n "${ANDROID_HOME:-}" ]; then
+            ANDROID_JAR=$(ls -1 "$ANDROID_HOME"/platforms/*/android.jar 2>/dev/null | sort -V | tail -1 || true)
+            export ANDROID_JAR
+          fi
+          echo "ANDROID_JAR=${ANDROID_JAR:-<none>}"
+          for script in tools/validate_project.py tools/check_xml_attributes.py tools/check_android_overrides.py; do
             if [ ! -f "$script" ]; then
               echo "::warning::$script is not present in this checkout - skipping"
               continue

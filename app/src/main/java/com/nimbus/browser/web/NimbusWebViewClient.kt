@@ -3,7 +3,7 @@ package com.nimbus.browser.web
 import android.graphics.Bitmap
 import android.net.Uri
 import android.net.http.SslError
-import android.net.http.SslErrorHandler
+import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -107,14 +107,6 @@ class NimbusWebViewClient(
             HistoryRepository.recordVisit(url, title)
         }
         host.onPageFinished(tab, url)
-    }
-
-    override fun onReceivedTitle(view: WebView, title: String?) {
-        val clean = title?.trim().orEmpty()
-        if (clean.isNotEmpty()) {
-            tab.title = clean
-            host.onReceivedTitle(tab, clean)
-        }
     }
 
     override fun doUpdateVisitedHistory(

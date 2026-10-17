@@ -21,8 +21,16 @@ class NimbusWebChromeClient(
         host.onProgressChanged(tab, newProgress)
     }
 
+    /**
+     * Page title updates are a WebChromeClient callback - WebViewClient has no
+     * `onReceivedTitle` at all, which is why this lives here.
+     */
     override fun onReceivedTitle(view: WebView, title: String?) {
-        // Handled by NimbusWebViewClient#onReceivedTitle.
+        val clean = title?.trim().orEmpty()
+        if (clean.isNotEmpty()) {
+            tab.title = clean
+            host.onReceivedTitle(tab, clean)
+        }
     }
 
     // ----------------------------------------------------------------- //
